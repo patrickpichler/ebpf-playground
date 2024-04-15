@@ -54,13 +54,16 @@ type tracerSpecs struct {
 // It can be passed ebpf.CollectionSpec.Assign.
 type tracerProgramSpecs struct {
 	TracepointRawSyscallsSysEnter *ebpf.ProgramSpec `ebpf:"tracepoint__raw_syscalls__sys_enter"`
+	TracepointRawSyscallsSysExit  *ebpf.ProgramSpec `ebpf:"tracepoint__raw_syscalls__sys_exit"`
+	TracepointDummyTailcall       *ebpf.ProgramSpec `ebpf:"tracepoint_dummy_tailcall"`
 }
 
 // tracerMapSpecs contains maps before they are loaded into the kernel.
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type tracerMapSpecs struct {
-	ContextMap *ebpf.MapSpec `ebpf:"context_map"`
+	ContextMap  *ebpf.MapSpec `ebpf:"context_map"`
+	TailcallMap *ebpf.MapSpec `ebpf:"tailcall_map"`
 }
 
 // tracerObjects contains all objects after they have been loaded into the kernel.
@@ -82,12 +85,14 @@ func (o *tracerObjects) Close() error {
 //
 // It can be passed to loadTracerObjects or ebpf.CollectionSpec.LoadAndAssign.
 type tracerMaps struct {
-	ContextMap *ebpf.Map `ebpf:"context_map"`
+	ContextMap  *ebpf.Map `ebpf:"context_map"`
+	TailcallMap *ebpf.Map `ebpf:"tailcall_map"`
 }
 
 func (m *tracerMaps) Close() error {
 	return _TracerClose(
 		m.ContextMap,
+		m.TailcallMap,
 	)
 }
 
@@ -96,11 +101,15 @@ func (m *tracerMaps) Close() error {
 // It can be passed to loadTracerObjects or ebpf.CollectionSpec.LoadAndAssign.
 type tracerPrograms struct {
 	TracepointRawSyscallsSysEnter *ebpf.Program `ebpf:"tracepoint__raw_syscalls__sys_enter"`
+	TracepointRawSyscallsSysExit  *ebpf.Program `ebpf:"tracepoint__raw_syscalls__sys_exit"`
+	TracepointDummyTailcall       *ebpf.Program `ebpf:"tracepoint_dummy_tailcall"`
 }
 
 func (p *tracerPrograms) Close() error {
 	return _TracerClose(
 		p.TracepointRawSyscallsSysEnter,
+		p.TracepointRawSyscallsSysExit,
+		p.TracepointDummyTailcall,
 	)
 }
 

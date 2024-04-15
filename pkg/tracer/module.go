@@ -2,6 +2,7 @@ package tracer
 
 import (
 	"github.com/cilium/ebpf"
+	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/rlimit"
 )
 
@@ -27,6 +28,30 @@ func (t *Tracer) Arm() error {
 	}
 
 	t.objs = &objs
+
+	index := uint32(0)
+
+	fd := uint32(objs.tracerPrograms.TracepointDummyTailcall.FD())
+
+	if err := objs.tracerMaps.TailcallMap.Update(&index, &fd, 0); err != nil {
+		return err
+	}
+
+	_, err = link.AttachRawTracepoint(link.RawTracepointOptions{
+		Name:    "sys_enter",
+		Program: objs.tracerPrograms.TracepointRawSyscallsSysEnter,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = link.AttachRawTracepoint(link.RawTracepointOptions{
+		Name:    "sys_exit",
+		Program: objs.tracerPrograms.TracepointRawSyscallsSysExit,
+	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
