@@ -68,14 +68,25 @@ struct {
   __type(value, u8);
 } wot SEC(".maps");
 
+int very_important_function(int num) {
+  u64 current_time = bpf_ktime_get_ns();
+  u64 current_time_2 = bpf_ktime_get_ns();
+
+  return num + (int)current_time + (int)current_time_2;
+}
+
 SEC("raw_tracepoint/sys_enter")
 int tracepoint__raw_syscalls__sys_enter(struct bpf_raw_tracepoint_args *ctx) {
+  int a = 10;
+  a = very_important_function(a);
   struct person p = {
       .height = 1,
       .age = 1,
   };
 
-  u8 dummy = (u8)bpf_get_current_pid_tgid();
+  a = very_important_function(a);
+
+  u8 dummy = a;
 
   bpf_map_update_elem(&wot, &p, &dummy, BPF_ANY);
 
