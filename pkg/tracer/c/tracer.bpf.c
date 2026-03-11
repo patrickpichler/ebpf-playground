@@ -56,8 +56,29 @@ struct {
 
 __u64 test = 0;
 
+struct person {
+  u64 age;
+  u16 height;
+};
+
+struct {
+  __uint(type, BPF_MAP_TYPE_HASH);
+  __uint(max_entries, FILTER_SIZE);
+  __type(key, u8[sizeof(struct person)]);
+  __type(value, u8);
+} wot SEC(".maps");
+
 SEC("raw_tracepoint/sys_enter")
 int tracepoint__raw_syscalls__sys_enter(struct bpf_raw_tracepoint_args *ctx) {
+  struct person p = {
+      .height = 1,
+      .age = 1,
+  };
+
+  u8 dummy = (u8)bpf_get_current_pid_tgid();
+
+  bpf_map_update_elem(&wot, &p, &dummy, BPF_ANY);
+
   __u64 tid = bpf_get_current_pid_tgid();
   int zero = 0;
   struct context_t *c;

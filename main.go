@@ -24,16 +24,19 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM)
 	defer cancel()
 
-	startDummyRun(ctx, t)
 	// startDummyRun(ctx, t)
 	// startDummyRun(ctx, t)
 	// startDummyRun(ctx, t)
 	// startDummyRun(ctx, t)
 	// startDummyRun(ctx, t)
-
-	if err := t.CloseFilters(); err != nil {
-		fmt.Println("error during close:", err)
+	// startDummyRun(ctx, t)
+	if err := t.Arm(); err != nil {
+		panic(err)
 	}
+
+	// if err := t.CloseFilters(); err != nil {
+	// 	fmt.Println("error during close:", err)
+	// }
 
 	<-ctx.Done()
 

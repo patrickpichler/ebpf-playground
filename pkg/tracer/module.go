@@ -86,6 +86,6 @@ func (t *Tracer) Dummy() error {
 	return err
 }
 
-func (t*Tracer) CloseFilters()error {
+func (t *Tracer) CloseFilters() error {
 	return t.objs.Filters.Close()
 }
